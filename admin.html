@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Panel | Iron & Fade Barbershop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%230b0b0c'/%3E%3Cpath d='M4 4l16 16M20 4L4 20' stroke='%23c9a34e' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0b0b0c; --bg-alt:#141416; --card:#18181b; --card-border:#2a2a2e;
+    --gold:#c9a34e; --gold-bright:#e6c273; --red:#b0413e; --green:#4caf6b;
+    --text:#f2f0eb; --text-dim:#a8a6a1; --text-faint:#726f6a;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:'Manrope', sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  h1,h2,h3{ font-family:'Bebas Neue', sans-serif; letter-spacing:.03em; font-weight:400; }
+  a{ color:inherit; }
+  .btn{ display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:999px; font-weight:700; font-size:.85rem; cursor:pointer; border:none; }
+  .btn-primary{ background:linear-gradient(135deg,var(--gold-bright),var(--gold)); color:#1a1408; }
+  .btn-outline{ background:transparent; border:1px solid var(--card-border); color:var(--text); }
+  .btn-outline:hover{ border-color:var(--gold); }
+  .btn-danger{ background:rgba(176,65,62,.15); color:#e88a87; border:1px solid rgba(176,65,62,.4); }
+  .btn-sm{ padding:7px 14px; font-size:.76rem; }
+
+  /* ---------- LOGIN ---------- */
+  #loginScreen{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .login-card{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:40px; width:100%; max-width:380px; text-align:center; }
+  .login-card .mark{ width:52px; height:52px; border-radius:50%; border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; }
+  .login-card h1{ font-size:1.8rem; margin-bottom:6px; }
+  .login-card p{ color:var(--text-faint); font-size:.85rem; margin-bottom:26px; }
+  .login-card input{ width:100%; background:var(--bg-alt); border:1px solid var(--card-border); border-radius:8px; padding:13px 14px; color:var(--text); font-size:.95rem; margin-bottom:14px; outline:none; }
+  .login-card input:focus{ border-color:var(--gold); }
+  .login-card .btn{ width:100%; justify-content:center; }
+  .login-hint{ margin-top:18px; font-size:.74rem; color:var(--text-faint); line-height:1.5; }
+  .login-error{ color:#e88a87; font-size:.8rem; margin-bottom:12px; display:none; }
+
+  /* ---------- APP SHELL ---------- */
+  #app{ display:none; }
+  #app.visible{ display:block; }
+  header{ position:sticky; top:0; z-index:10; background:rgba(11,11,12,.9); backdrop-filter:blur(10px); border-bottom:1px solid var(--card-border); }
+  .nav{ max-width:1100px; margin:0 auto; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; }
+  .logo{ display:flex; align-items:center; gap:10px; font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:.06em; }
+  .logo .mark{ width:30px; height:30px; border-radius:50%; border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; }
+  .tabs{ display:flex; gap:6px; }
+  .tab-btn{ background:none; border:1px solid transparent; color:var(--text-dim); padding:9px 16px; border-radius:999px; font-weight:700; font-size:.82rem; cursor:pointer; font-family:inherit; }
+  .tab-btn.active{ background:var(--card); border-color:var(--card-border); color:var(--gold-bright); }
+  .wrap{ max-width:1100px; margin:0 auto; padding:34px 24px 80px; }
+  .panel{ display:none; }
+  .panel.active{ display:block; animation:fadeIn .3s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .panel-head{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:22px; flex-wrap:wrap; gap:12px; }
+  .panel-head h2{ font-size:2rem; }
+  .panel-head p{ color:var(--text-faint); font-size:.85rem; margin-top:4px; }
+
+  /* ---------- CITAS ---------- */
+  .appt-list{ display:flex; flex-direction:column; gap:12px; }
+  .appt-card{ background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:18px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
+  .appt-info h4{ font-family:'Manrope',sans-serif; font-weight:800; font-size:.98rem; margin-bottom:4px; }
+  .appt-info .meta{ color:var(--text-dim); font-size:.82rem; display:flex; flex-wrap:wrap; gap:4px 14px; }
+  .appt-info .notes{ color:var(--text-faint); font-size:.78rem; margin-top:6px; font-style:italic; }
+  .badge{ font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; padding:4px 10px; border-radius:999px; }
+  .badge.pending{ background:rgba(201,163,78,.15); color:var(--gold-bright); }
+  .badge.confirmed{ background:rgba(76,175,107,.15); color:var(--green); }
+  .appt-actions{ display:flex; gap:8px; }
+  .empty-state{ text-align:center; padding:60px 20px; color:var(--text-faint); border:1px dashed var(--card-border); border-radius:12px; }
+  .empty-state strong{ display:block; color:var(--text-dim); font-size:1.1rem; margin-bottom:6px; font-family:'Manrope',sans-serif; }
+
+  /* ---------- CARDS GRID (servicios/barberos) ---------- */
+  .item-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:16px; margin-bottom:30px; }
+  .item-card{ background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:20px; }
+  .item-card h4{ font-family:'Manrope',sans-serif; font-weight:800; font-size:1rem; margin-bottom:4px; }
+  .item-card .sub{ color:var(--gold-bright); font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+  .item-card p{ color:var(--text-dim); font-size:.82rem; margin-bottom:12px; }
+  .item-card .row{ display:flex; justify-content:space-between; align-items:center; font-size:.82rem; color:var(--text-faint); margin-bottom:14px; }
+  .item-card .actions{ display:flex; gap:8px; }
+
+  /* ---------- FORM ---------- */
+  .form-box{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:26px; }
+  .form-box h3{ font-size:1.3rem; margin-bottom:18px; }
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+  @media(max-width:600px){ .form-grid{ grid-template-columns:1fr; } }
+  .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .field label{ font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint); font-weight:700; }
+  .field input, .field select, .field textarea{ background:var(--bg-alt); border:1px solid var(--card-border); border-radius:8px; padding:11px 13px; color:var(--text); font-family:inherit; font-size:.9rem; outline:none; }
+  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--gold); }
+  .checkbox-row{ display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+  .checkbox-row label{ font-size:.85rem; color:var(--text-dim); }
+
+  .toolbar{ display:flex; justify-content:flex-end; margin-bottom:20px; }
+  .top-actions{ display:flex; gap:10px; align-items:center; }
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="mark">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 4l16 16M20 4L4 20" stroke="#e6c273" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </div>
+    <h1>Staff Panel</h1>
+    <p>Iron &amp; Fade Barbershop — internal access</p>
+    <p class="login-error" id="loginError">Incorrect password. Try again.</p>
+    <input type="password" id="pwInput" placeholder="Enter staff password" autofocus>
+    <button class="btn btn-primary" id="loginBtn">Log In</button>
+    <p class="login-hint">Demo password: <strong>ironfade2024</strong><br>This is a front-end demo panel — not real authentication.</p>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <header>
+    <div class="nav">
+      <div class="logo">
+        <span class="mark"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4l16 16M20 4L4 20" stroke="#e6c273" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+        IRON &amp; FADE <span style="color:var(--text-faint); font-weight:400; font-family:'Manrope',sans-serif; font-size:.75rem; margin-left:6px;">/ Staff</span>
+      </div>
+      <div class="tabs" id="tabs">
+        <button class="tab-btn active" data-tab="citas">Citas</button>
+        <button class="tab-btn" data-tab="servicios">Servicios</button>
+        <button class="tab-btn" data-tab="barberos">Barberos</button>
+      </div>
+      <div class="top-actions">
+        <a href="index.html" class="btn btn-outline btn-sm">Ver landing</a>
+        <button class="btn btn-outline btn-sm" id="logoutBtn">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- ============ CITAS ============ -->
+    <section class="panel active" id="panel-citas">
+      <div class="panel-head">
+        <div>
+          <h2>Citas Reservadas</h2>
+          <p>Aquí aparecen automáticamente las citas que los clientes reservan desde la landing.</p>
+        </div>
+        <button class="btn btn-outline btn-sm" id="clearApptsBtn">Vaciar citas de prueba</button>
+      </div>
+      <div class="appt-list" id="apptList"></div>
+    </section>
+
+    <!-- ============ SERVICIOS ============ -->
+    <section class="panel" id="panel-servicios">
+      <div class="panel-head">
+        <div>
+          <h2>Servicios</h2>
+          <p>Se reflejan al instante en la landing pública (servicios y precios).</p>
+        </div>
+      </div>
+      <div class="item-grid" id="servicesList"></div>
+      <div class="form-box">
+        <h3 id="serviceFormTitle">Agregar Servicio</h3>
+        <input type="hidden" id="serviceEditId">
+        <div class="form-grid">
+          <div class="field"><label>Nombre</label><input type="text" id="svcName" placeholder="Skin Fade"></div>
+          <div class="field"><label>Precio</label><input type="text" id="svcPrice" placeholder="$40"></div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>Duración</label><input type="text" id="svcDuration" placeholder="40 min"></div>
+          <div class="field">
+            <label>Ícono</label>
+            <select id="svcIcon">
+              <option value="scissors">Tijeras</option>
+              <option value="clock">Reloj</option>
+              <option value="lines">Líneas</option>
+              <option value="arrows">Flechas</option>
+              <option value="star">Estrella</option>
+              <option value="package">Paquete</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Descripción</label><textarea id="svcDesc" rows="2" placeholder="Breve descripción del servicio"></textarea></div>
+        <div class="checkbox-row"><input type="checkbox" id="svcFeatured"><label for="svcFeatured">Marcar como "Most Popular"</label></div>
+        <div class="top-actions">
+          <button class="btn btn-primary" id="svcSaveBtn">Guardar Servicio</button>
+          <button class="btn btn-outline" id="svcCancelEdit" style="display:none;">Cancelar edición</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BARBEROS ============ -->
+    <section class="panel" id="panel-barberos">
+      <div class="panel-head">
+        <div>
+          <h2>Barberos</h2>
+          <p>Se reflejan al instante en la sección "Meet The Team" de la landing pública.</p>
+        </div>
+      </div>
+      <div class="item-grid" id="barbersList"></div>
+      <div class="form-box">
+        <h3 id="barberFormTitle">Agregar Barbero</h3>
+        <input type="hidden" id="barberEditId">
+        <div class="form-grid">
+          <div class="field"><label>Nombre</label><input type="text" id="brbName" placeholder="Marcus Reed"></div>
+          <div class="field"><label>Rol</label><input type="text" id="brbRole" placeholder="Senior Barber"></div>
+        </div>
+        <div class="field"><label>Especialidad</label><input type="text" id="brbSpecialty" placeholder="Fades & classic cuts"></div>
+        <div class="field"><label>Foto (URL, opcional)</label><input type="text" id="brbPhoto" placeholder="https://..."></div>
+        <div class="top-actions">
+          <button class="btn btn-primary" id="brbSaveBtn">Guardar Barbero</button>
+          <button class="btn btn-outline" id="brbCancelEdit" style="display:none;">Cancelar edición</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  const AUTH_KEY = 'ironfade_admin_auth';
+  const IF_DATA_KEY = 'ironfade_site_data_v1';
+  const IF_APPTS_KEY = 'ironfade_appointments_v1';
+  const DEMO_PASSWORD = 'ironfade2024';
+
+  // Datos por defecto — deben coincidir con los de index.html. Sirven como punto de partida
+  // hasta que el panel guarde su primer cambio (a partir de ahí se usa lo guardado).
+  const DEFAULT_DATA = {
+    barbers: [
+      { name: "Marcus Reed",     role: "Owner & Master Barber", specialty: "Fades & classic cuts",       photo: "" },
+      { name: "Diego Ramos",     role: "Senior Barber",         specialty: "Beard sculpting specialist", photo: "" },
+      { name: "Jamal Whitfield", role: "Barber",                specialty: "Modern textured styles",     photo: "" },
+      { name: "Anthony Cruz",    role: "Barber",                specialty: "Hot towel shave expert",     photo: "" }
+    ],
+    services: [
+      { icon:"scissors", name:"Classic Haircut",       desc:"Scissor or clipper cut, tailored to your style, includes wash and style.", duration:"35 min", price:"$35", featured:false },
+      { icon:"clock",    name:"Cut + Hot Towel Shave", desc:"Our signature combo — precision fade paired with a straight razor hot towel shave.", duration:"60 min", price:"$55", featured:true },
+      { icon:"lines",    name:"Skin Fade",             desc:"Ultra-clean fade down to the skin, blended to perfection with detailed lineup.", duration:"40 min", price:"$40", featured:false },
+      { icon:"arrows",   name:"Beard Trim & Line Up",  desc:"Shape, trim and define with precision — includes hot towel and beard oil finish.", duration:"25 min", price:"$25", featured:false },
+      { icon:"star",     name:"Kids Cut (12 & Under)", desc:"Patient, friendly service for the little ones — same great quality cut.", duration:"30 min", price:"$25", featured:false },
+      { icon:"package",  name:"The Full Package",      desc:"Cut, shave, beard sculpt, and scalp massage — the complete grooming experience.", duration:"90 min", price:"$85", featured:false }
+    ]
+  };
+
+  function esc(str){
+    return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function loadData(){
+    try{
+      const raw = localStorage.getItem(IF_DATA_KEY);
+      if (raw){
+        const saved = JSON.parse(raw);
+        return {
+          barbers: Array.isArray(saved.barbers) && saved.barbers.length ? saved.barbers : DEFAULT_DATA.barbers,
+          services: Array.isArray(saved.services) && saved.services.length ? saved.services : DEFAULT_DATA.services
+        };
+      }
+    }catch(e){}
+    return { barbers: [...DEFAULT_DATA.barbers], services: [...DEFAULT_DATA.services] };
+  }
+
+  function saveData(data){
+    try{ localStorage.setItem(IF_DATA_KEY, JSON.stringify(data)); }catch(e){ alert('No se pudo guardar (localStorage no disponible en este navegador).'); }
+  }
+
+  let DATA = loadData();
+
+  function loadAppts(){
+    try{ return JSON.parse(localStorage.getItem(IF_APPTS_KEY) || '[]'); }catch(e){ return []; }
+  }
+  function saveAppts(list){
+    try{ localStorage.setItem(IF_APPTS_KEY, JSON.stringify(list)); }catch(e){}
+  }
+
+  /* ---------------- LOGIN ---------------- */
+  const loginScreen = document.getElementById('loginScreen');
+  const appEl = document.getElementById('app');
+  const pwInput = document.getElementById('pwInput');
+  const loginError = document.getElementById('loginError');
+
+  function tryLogin(){
+    if (pwInput.value === DEMO_PASSWORD){
+      try{ sessionStorage.setItem(AUTH_KEY, '1'); }catch(e){}
+      loginScreen.style.display = 'none';
+      appEl.classList.add('visible');
+      renderAll();
+    } else {
+      loginError.style.display = 'block';
+    }
+  }
+  document.getElementById('loginBtn').addEventListener('click', tryLogin);
+  pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    try{ sessionStorage.removeItem(AUTH_KEY); }catch(e){}
+    location.reload();
+  });
+
+  try{
+    if (sessionStorage.getItem(AUTH_KEY) === '1'){
+      loginScreen.style.display = 'none';
+      appEl.classList.add('visible');
+    }
+  }catch(e){}
+
+  /* ---------------- TABS ---------------- */
+  document.getElementById('tabs').addEventListener('click', e => {
+    const btn = e.target.closest('.tab-btn');
+    if (!btn) return;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+
+  /* ---------------- CITAS ---------------- */
+  function renderAppts(){
+    const list = loadAppts().sort((a,b) => (a.date || '').localeCompare(b.date || ''));
+    const el = document.getElementById('apptList');
+    if (!list.length){
+      el.innerHTML = `<div class="empty-state"><strong>Sin citas todavía</strong>Cuando alguien reserve desde la landing pública, aparecerá aquí automáticamente.</div>`;
+      return;
+    }
+    el.innerHTML = list.map(a => `
+      <div class="appt-card" data-id="${a.id}">
+        <div class="appt-info">
+          <h4>${esc(a.firstName)} ${esc(a.lastName)} <span class="badge ${a.status === 'confirmed' ? 'confirmed' : 'pending'}">${a.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}</span></h4>
+          <div class="meta">
+            <span>📅 ${esc(a.date) || 'Sin fecha'}</span>
+            <span>📞 ${esc(a.phone)}</span>
+            <span>✂️ ${esc(a.service) || 'Sin servicio'}</span>
+          </div>
+          ${a.notes ? `<div class="notes">"${esc(a.notes)}"</div>` : ''}
+        </div>
+        <div class="appt-actions">
+          ${a.status !== 'confirmed' ? `<button class="btn btn-outline btn-sm" data-action="confirm" data-id="${a.id}">Confirmar</button>` : ''}
+          <button class="btn btn-danger btn-sm" data-action="delete-appt" data-id="${a.id}">Eliminar</button>
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('apptList').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const list = loadAppts();
+    const idx = list.findIndex(a => a.id === btn.dataset.id);
+    if (idx === -1) return;
+    if (btn.dataset.action === 'confirm'){ list[idx].status = 'confirmed'; saveAppts(list); renderAppts(); }
+    if (btn.dataset.action === 'delete-appt'){ list.splice(idx,1); saveAppts(list); renderAppts(); }
+  });
+
+  document.getElementById('clearApptsBtn').addEventListener('click', () => {
+    if (confirm('¿Vaciar todas las citas de prueba? Esta acción no se puede deshacer.')){
+      saveAppts([]); renderAppts();
+    }
+  });
+
+  /* ---------------- SERVICIOS ---------------- */
+  function renderServices(){
+    const el = document.getElementById('servicesList');
+    el.innerHTML = DATA.services.map((s, i) => `
+      <div class="item-card">
+        ${s.featured ? '<div class="sub">Most Popular</div>' : ''}
+        <h4>${esc(s.name)}</h4>
+        <p>${esc(s.desc)}</p>
+        <div class="row"><span>${esc(s.duration)}</span><span style="color:var(--gold-bright); font-weight:700;">${esc(s.price)}</span></div>
+        <div class="actions">
+          <button class="btn btn-outline btn-sm" data-action="edit-svc" data-i="${i}">Editar</button>
+          <button class="btn btn-danger btn-sm" data-action="del-svc" data-i="${i}">Eliminar</button>
+        </div>
+      </div>`).join('') || '<div class="empty-state"><strong>Sin servicios</strong>Agrega el primero abajo.</div>';
+  }
+
+  const svcFields = ['svcName','svcPrice','svcDuration','svcIcon','svcDesc','svcFeatured'];
+  function clearServiceForm(){
+    document.getElementById('serviceEditId').value = '';
+    document.getElementById('svcName').value = '';
+    document.getElementById('svcPrice').value = '';
+    document.getElementById('svcDuration').value = '';
+    document.getElementById('svcIcon').value = 'scissors';
+    document.getElementById('svcDesc').value = '';
+    document.getElementById('svcFeatured').checked = false;
+    document.getElementById('serviceFormTitle').textContent = 'Agregar Servicio';
+    document.getElementById('svcCancelEdit').style.display = 'none';
+  }
+
+  document.getElementById('servicesList').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const i = parseInt(btn.dataset.i);
+    if (btn.dataset.action === 'del-svc'){
+      if (confirm('¿Eliminar este servicio?')){ DATA.services.splice(i,1); saveData(DATA); renderServices(); renderServiceOptionsNote(); }
+    }
+    if (btn.dataset.action === 'edit-svc'){
+      const s = DATA.services[i];
+      document.getElementById('serviceEditId').value = i;
+      document.getElementById('svcName').value = s.name;
+      document.getElementById('svcPrice').value = s.price;
+      document.getElementById('svcDuration').value = s.duration;
+      document.getElementById('svcIcon').value = s.icon;
+      document.getElementById('svcDesc').value = s.desc;
+      document.getElementById('svcFeatured').checked = !!s.featured;
+      document.getElementById('serviceFormTitle').textContent = 'Editar Servicio';
+      document.getElementById('svcCancelEdit').style.display = 'inline-flex';
+      document.getElementById('panel-servicios').scrollIntoView({ behavior:'smooth', block:'end' });
+    }
+  });
+
+  document.getElementById('svcSaveBtn').addEventListener('click', () => {
+    const name = document.getElementById('svcName').value.trim();
+    if (!name){ alert('Ponle un nombre al servicio.'); return; }
+    const obj = {
+      name,
+      price: document.getElementById('svcPrice').value.trim() || '$0',
+      duration: document.getElementById('svcDuration').value.trim() || '30 min',
+      icon: document.getElementById('svcIcon').value,
+      desc: document.getElementById('svcDesc').value.trim(),
+      featured: document.getElementById('svcFeatured').checked
+    };
+    const editId = document.getElementById('serviceEditId').value;
+    if (editId !== ''){ DATA.services[parseInt(editId)] = obj; } else { DATA.services.push(obj); }
+    saveData(DATA);
+    renderServices();
+    clearServiceForm();
+  });
+  document.getElementById('svcCancelEdit').addEventListener('click', clearServiceForm);
+
+  /* ---------------- BARBEROS ---------------- */
+  function renderBarbers(){
+    const el = document.getElementById('barbersList');
+    el.innerHTML = DATA.barbers.map((b, i) => `
+      <div class="item-card">
+        <h4>${esc(b.name)}</h4>
+        <div class="sub">${esc(b.role)}</div>
+        <p>${esc(b.specialty)}</p>
+        <div class="actions">
+          <button class="btn btn-outline btn-sm" data-action="edit-brb" data-i="${i}">Editar</button>
+          <button class="btn btn-danger btn-sm" data-action="del-brb" data-i="${i}">Eliminar</button>
+        </div>
+      </div>`).join('') || '<div class="empty-state"><strong>Sin barberos</strong>Agrega el primero abajo.</div>';
+  }
+
+  function clearBarberForm(){
+    document.getElementById('barberEditId').value = '';
+    document.getElementById('brbName').value = '';
+    document.getElementById('brbRole').value = '';
+    document.getElementById('brbSpecialty').value = '';
+    document.getElementById('brbPhoto').value = '';
+    document.getElementById('barberFormTitle').textContent = 'Agregar Barbero';
+    document.getElementById('brbCancelEdit').style.display = 'none';
+  }
+
+  document.getElementById('barbersList').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const i = parseInt(btn.dataset.i);
+    if (btn.dataset.action === 'del-brb'){
+      if (confirm('¿Eliminar este barbero?')){ DATA.barbers.splice(i,1); saveData(DATA); renderBarbers(); }
+    }
+    if (btn.dataset.action === 'edit-brb'){
+      const b = DATA.barbers[i];
+      document.getElementById('barberEditId').value = i;
+      document.getElementById('brbName').value = b.name;
+      document.getElementById('brbRole').value = b.role;
+      document.getElementById('brbSpecialty').value = b.specialty;
+      document.getElementById('brbPhoto').value = b.photo || '';
+      document.getElementById('barberFormTitle').textContent = 'Editar Barbero';
+      document.getElementById('brbCancelEdit').style.display = 'inline-flex';
+      document.getElementById('panel-barberos').scrollIntoView({ behavior:'smooth', block:'end' });
+    }
+  });
+
+  document.getElementById('brbSaveBtn').addEventListener('click', () => {
+    const name = document.getElementById('brbName').value.trim();
+    if (!name){ alert('Ponle un nombre al barbero.'); return; }
+    const obj = {
+      name,
+      role: document.getElementById('brbRole').value.trim() || 'Barber',
+      specialty: document.getElementById('brbSpecialty').value.trim(),
+      photo: document.getElementById('brbPhoto').value.trim()
+    };
+    const editId = document.getElementById('barberEditId').value;
+    if (editId !== ''){ DATA.barbers[parseInt(editId)] = obj; } else { DATA.barbers.push(obj); }
+    saveData(DATA);
+    renderBarbers();
+    clearBarberForm();
+  });
+  document.getElementById('brbCancelEdit').addEventListener('click', clearBarberForm);
+
+  function renderServiceOptionsNote(){ /* placeholder — la landing relee los datos guardados en cada carga */ }
+
+  function renderAll(){
+    renderAppts();
+    renderServices();
+    renderBarbers();
+  }
+</script>
+</body>
+</html>
